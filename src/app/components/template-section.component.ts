@@ -1,0 +1,149 @@
+import { Component, ElementRef, OnInit, HostListener } from '@angular/core';
+import { CommonModule } from '@angular/common';
+
+@Component({
+  selector: 'app-template-section',
+  imports: [CommonModule],
+  template: `
+    <section id="template" class="section" [class.visible]="isVisible">
+      <div class="floating-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+      </div>
+      <div class="container">
+        <div class="header animate-item" [style.transform]="'translateY(' + parallaxY * 0.2 + 'px)'">
+          <div class="section-label">APPROACH #1</div>
+          <h2 class="glow-text">Template-Driven Forms</h2>
+          <p>Declarative forms using directives in templates. Great for simple, straightforward scenarios.</p>
+        </div>
+        <div class="grid">
+          <div class="card glass-card full animate-item" style="animation-delay: 0.1s" [style.transform]="'translateY(' + parallaxY * 0.1 + 'px) rotateX(' + tiltX + 'deg) rotateY(' + tiltY + 'deg)'">
+            <div class="card-glow"></div>
+            <div class="card-header">
+              <div class="title-row">
+                <h3><span class="icon-wrapper"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg></span>What are Template-Driven Forms?</h3>
+                <span class="badge pulse">Simple</span>
+              </div>
+              <p class="desc">Template-driven forms are declared in the template and rely on directives like ngModel.</p>
+            </div>
+            <div class="code-block font-code">
+              <div class="code-header"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+              <div class="comment">// Example: Template-driven form</div>
+              <div>&lt;form #loginForm=<span class="string">"ngForm"</span>&gt;</div>
+              <div class="indent">&lt;input [(ngModel)]=<span class="string">"username"</span> name=<span class="string">"username"</span> required /&gt;</div>
+              <div>&lt;/form&gt;</div>
+            </div>
+          </div>
+          <div class="card glass-card animate-item zoom-in" style="animation-delay: 0.2s">
+            <div class="icon-badge success"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg></div>
+            <h3>✓ Advantages</h3>
+            <ul>
+              <li *ngFor="let p of pros; let i = index" class="list-item" [style.animation-delay]="(0.3 + i * 0.1) + 's'"><span class="check">✓</span><span>{{p}}</span></li>
+            </ul>
+          </div>
+          <div class="card glass-card animate-item zoom-in" style="animation-delay: 0.3s">
+            <div class="icon-badge warning"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></div>
+            <h3>! Limitations</h3>
+            <ul>
+              <li *ngFor="let c of cons; let i = index" class="list-item" [style.animation-delay]="(0.4 + i * 0.1) + 's'"><span class="warn">!</span><span>{{c}}</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="section-separator"></div>
+    </section>
+  `,
+  styles: [`
+    .section { padding: 5rem 0; opacity: 0; transform: translateY(50px); transition: opacity 0.8s ease, transform 0.8s ease; position: relative; }
+    .section.visible { opacity: 1; transform: translateY(0); }
+    .floating-shapes { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+    .shape { position: absolute; border-radius: 50%; filter: blur(60px); }
+    .shape-1 { width: 300px; height: 300px; background: radial-gradient(circle, rgba(139,92,246,0.2), transparent); top: 10%; right: -10%; animation: float1 15s ease-in-out infinite; }
+    .shape-2 { width: 250px; height: 250px; background: radial-gradient(circle, rgba(56,189,248,0.15), transparent); bottom: 20%; left: -5%; animation: float2 18s ease-in-out infinite; }
+    @keyframes float1 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(50px,-30px) scale(1.2); } }
+    @keyframes float2 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(-40px,40px) scale(1.1); } }
+    .section-label { font-size: 0.75rem; letter-spacing: 0.15em; color: #8B5CF6; font-weight: 600; margin-bottom: 0.5rem; }
+    .animate-item { opacity: 0; transform: translateY(30px); transition: transform 0.2s ease; }
+    .section.visible .animate-item { animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+    @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+    .zoom-in { transform: scale(0.9); }
+    .section.visible .zoom-in { animation: zoomIn 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+    @keyframes zoomIn { to { opacity: 1; transform: scale(1); } }
+    .header { text-align: center; margin-bottom: 4rem; }
+    .header h2 { font-size: 2rem; font-weight: 700; color: #EAF0FF; margin-bottom: 1rem; position: relative; display: inline-block; }
+    @media (min-width: 640px) { .header h2 { font-size: 2.75rem; } }
+    .glow-text { text-shadow: 0 0 40px rgba(139,92,246,0.3); }
+    .header p { font-size: 0.875rem; color: #AAB4D6; max-width: 42rem; margin: 0 auto; }
+    @media (min-width: 640px) { .header p { font-size: 1rem; } }
+    .grid { display: grid; gap: 2rem; perspective: 1000px; }
+    @media (min-width: 1024px) { .grid { grid-template-columns: repeat(2, 1fr); gap: 2.5rem; } }
+    .card { padding: 2rem; position: relative; transform-style: preserve-3d; }
+    .card.full { grid-column: 1 / -1; }
+    .card-glow { position: absolute; inset: -2px; background: linear-gradient(135deg, rgba(139,92,246,0.3), rgba(56,189,248,0.2)); border-radius: 1.5rem; opacity: 0; transition: opacity 0.3s; filter: blur(20px); z-index: -1; }
+    .card:hover .card-glow { opacity: 1; }
+    .card-header { margin-bottom: 1.5rem; }
+    .title-row { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1rem; }
+    .icon-wrapper { display: inline-flex; width: 1.5rem; height: 1.5rem; color: #8B5CF6; margin-right: 0.5rem; }
+    .icon-wrapper svg { width: 100%; height: 100%; }
+    .card h3 { font-size: 1.25rem; font-weight: 600; color: #EAF0FF; display: flex; align-items: center; }
+    .desc { font-size: 0.875rem; color: #AAB4D6; line-height: 1.7; }
+    .code-block { background: linear-gradient(135deg, rgba(0,0,0,0.6), rgba(0,0,0,0.4)); padding: 1.5rem; border-radius: 0.75rem; font-size: 0.875rem; color: #AAB4D6; line-height: 1.8; border: 1px solid rgba(139,92,246,0.2); }
+    .code-header { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+    .dot { width: 12px; height: 12px; border-radius: 50%; }
+    .dot:nth-child(1) { background: #FF5F57; }
+    .dot:nth-child(2) { background: #FFBD2E; }
+    .dot:nth-child(3) { background: #28CA42; }
+    .comment { color: #8B5CF6; margin-bottom: 0.5rem; }
+    .indent { margin-left: 1.5rem; }
+    .string { color: #38BDF8; }
+    .icon-badge { width: 3rem; height: 3rem; border-radius: 1rem; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; }
+    .icon-badge.success { background: linear-gradient(135deg, rgba(52,211,153,0.2), rgba(52,211,153,0.1)); color: #34D399; }
+    .icon-badge.warning { background: linear-gradient(135deg, rgba(245,158,11,0.2), rgba(245,158,11,0.1)); color: #F59E0B; }
+    .icon-badge svg { width: 1.5rem; height: 1.5rem; }
+    ul { list-style: none; display: flex; flex-direction: column; gap: 0.75rem; }
+    .list-item { display: flex; align-items: flex-start; gap: 0.75rem; font-size: 0.875rem; color: #AAB4D6; opacity: 0; transform: translateX(-20px); padding: 0.5rem; border-radius: 0.5rem; transition: all 0.2s; }
+    .list-item:hover { background: rgba(255,255,255,0.03); transform: translateX(5px); }
+    .section.visible .list-item { animation: slideIn 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+    @keyframes slideIn { to { opacity: 1; transform: translateX(0); } }
+    .check { color: #34D399; font-weight: 700; font-size: 1.25rem; }
+    .warn { color: #F59E0B; font-weight: 700; font-size: 1.25rem; }
+    .pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.7; } }
+  `]
+})
+export class TemplateSectionComponent implements OnInit {
+  isVisible = false;
+  parallaxY = 0;
+  tiltX = 0;
+  tiltY = 0;
+  pros = ['Great for simple forms', 'Less TypeScript upfront', 'Validation lives close to markup', 'Quick to set up and prototype'];
+  cons = ['Harder to unit test', 'Less control over form state', 'Can become messy with complex forms', 'Asynchronous validation is tricky'];
+
+  constructor(private el: ElementRef) {}
+
+  ngOnInit() {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          this.isVisible = true;
+        }
+      });
+    }, { threshold: 0.1 });
+    observer.observe(this.el.nativeElement);
+  }
+
+  @HostListener('window:scroll')
+  onScroll() {
+    const rect = this.el.nativeElement.getBoundingClientRect();
+    this.parallaxY = (window.innerHeight - rect.top) * 0.1;
+  }
+
+  @HostListener('mousemove', ['$event'])
+  onMouseMove(e: MouseEvent) {
+    const rect = this.el.nativeElement.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    this.tiltX = (y / rect.height - 0.5) * 5;
+    this.tiltY = (x / rect.width - 0.5) * -5;
+  }
+}
