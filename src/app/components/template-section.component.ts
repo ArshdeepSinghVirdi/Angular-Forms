@@ -1,9 +1,11 @@
 import { Component, ElementRef, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule, NgForm } from '@angular/forms';
 
 @Component({
   selector: 'app-template-section',
-  imports: [CommonModule],
+  standalone: true,
+  imports: [CommonModule, FormsModule],
   template: `
     <section id="template" class="section" [class.visible]="isVisible">
       <div class="floating-shapes">
@@ -16,12 +18,16 @@ import { CommonModule } from '@angular/common';
           <h2 class="glow-text">Template-Driven Forms</h2>
           <p>Declarative forms using directives in templates. Great for simple, straightforward scenarios.</p>
         </div>
+
         <div class="grid">
-          <div class="card glass-card full animate-item" style="animation-delay: 0.1s" [style.transform]="'translateY(' + parallaxY * 0.1 + 'px) rotateX(' + tiltX + 'deg) rotateY(' + tiltY + 'deg)'">
-            <div class="card-glow"></div>
+          <!-- Main explanatory card -->
+          <div class="card glass-card-strong full animate-item" style="animation-delay: 0.1s" [style.transform]="'translateY(' + parallaxY * 0.1 + 'px) rotateX(' + tiltX + 'deg) rotateY(' + tiltY + 'deg)'">
+                      <div class="card-glow"></div>
+  
+          <div class="card-shine"></div>
             <div class="card-header">
               <div class="title-row">
-                <h3><span class="icon-wrapper"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg></span>What are Template-Driven Forms?</h3>
+                <h3><span class="icon-wrapper"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg></span>What are Reactive Forms?</h3>
                 <span class="badge pulse">Simple</span>
               </div>
               <p class="desc">Template-driven forms are declared in the template and rely on directives like ngModel.</p>
@@ -29,11 +35,137 @@ import { CommonModule } from '@angular/common';
             <div class="code-block font-code">
               <div class="code-header"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
               <div class="comment">// Example: Template-driven form</div>
-              <div>&lt;form #loginForm=<span class="string">"ngForm"</span>&gt;</div>
+              <div>&lt;form #loginForm=&lt;span class="string"&gt;"ngForm"&lt;/span&gt;&gt;</div>
               <div class="indent">&lt;input [(ngModel)]=<span class="string">"username"</span> name=<span class="string">"username"</span> required /&gt;</div>
               <div>&lt;/form&gt;</div>
             </div>
           </div>
+ 
+          <!-- Registration Form Card (template-driven) -->
+          <div class="card glass-card-strong full " style="animation-delay: 0.15s">
+
+            <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:1rem;">
+              <div class="icon-badge success" style="margin:0;">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M5 13l4 4L19 7"></path>
+                </svg>
+              </div>
+              <h3 style="margin:0;">Register</h3>
+            </div>
+
+            <form #registrationForm="ngForm" (ngSubmit)="onSubmit(registrationForm)" novalidate>
+
+              <!-- Full name -->
+              <div style="margin-bottom:0.75rem;">
+                <input
+                  name="fullName"
+                  required
+                  minlength="2"
+                  [(ngModel)]="model.fullName"
+                  #fullName="ngModel"
+                  placeholder="Full name"
+                  class="input"
+                />
+                <div class="error" *ngIf="fullName.invalid && (fullName.dirty || fullName.touched)" style="margin-top:0.25rem;">
+                  <small *ngIf="fullName.errors?.['required']">Name is required.</small>
+<small *ngIf="fullName.errors?.['minlength']">Name must be at least 2 characters.</small>
+</div>
+              </div>
+
+              <!-- Email -->
+              <div style="margin-bottom:0.75rem;">
+                <input
+                  name="email"
+                  required
+                  email
+                  [(ngModel)]="model.email"
+                  #email="ngModel"
+                  placeholder="Email address"
+                  class="input"
+                />
+                <div class="error" *ngIf="email.invalid && (email.dirty || email.touched)" style="margin-top:0.25rem;">
+                 <small *ngIf="email.errors?.['required']">Email is required.</small>
+<small *ngIf="email.errors?.['email']">Enter a valid email.</small>
+</div>
+              </div>
+
+              <!-- Password -->
+              <div style="margin-bottom:0.75rem;">
+                <input
+                  type="password"
+                  name="password"
+                  required
+                  minlength="6"
+                  [(ngModel)]="model.password"
+                  #password="ngModel"
+                  placeholder="Password (min 6 chars)"
+                  class="input"
+                />
+                <div class="error" *ngIf="password.invalid && (password.dirty || password.touched)" style="margin-top:0.25rem;">
+              <small *ngIf="password.errors?.['required']">Password is required.</small> <small *ngIf="password.errors?.['minlength']">Password must be at least 6 characters.</small> </div>
+              </div>
+
+              <!-- Confirm Password -->
+              <div style="margin-bottom:0.75rem;">
+                <input
+                  type="password"
+                  name="confirmPassword"
+                  required
+                  [(ngModel)]="model.confirmPassword"
+                  #confirmPassword="ngModel"
+                  placeholder="Confirm password"
+                  class="input"
+                />
+                <div class="error" *ngIf="(confirmPassword.dirty || confirmPassword.touched)" style="margin-top:0.25rem;">
+                  <small *ngIf="!passwordsMatch()">Passwords do not match.</small>
+                </div>
+              </div>
+
+              <!-- Phone (optional) -->
+              <div style="margin-bottom:0.75rem;">
+                <input
+                  name="phone"
+                  pattern="^[0-9\\-\\s()]+$"
+                  [(ngModel)]="model.phone"
+                  #phone="ngModel"
+                  placeholder="Phone (optional)"
+                  class="input"
+                />
+                <div class="error" *ngIf="phone.invalid && (phone.dirty || phone.touched)" style="margin-top:0.25rem;">
+<small *ngIf="phone.errors?.['pattern']">Enter a valid phone.</small>                </div>
+              </div>
+
+              <!-- Bio (optional) -->
+              <div style="margin-bottom:0.75rem;">
+                <textarea
+                  name="bio"
+                  rows="3"
+                  maxlength="250"
+                  [(ngModel)]="model.bio"
+                  #bio="ngModel"
+                  placeholder="Short bio (optional, max 250 chars)"
+                  class="input"
+                  style="resize:vertical;"
+                ></textarea>
+                <div class="error" *ngIf="bio.invalid && (bio.dirty || bio.touched)" style="margin-top:0.25rem;">
+<small *ngIf="bio.errors?.['maxlength']">Max 250 characters.</small>
+                </div>
+              </div>
+
+              <!-- Submit / Reset -->
+              <div style="display:flex; gap:0.5rem; margin-top:0.5rem; align-items:center;">
+                <button type="submit" [disabled]="registrationForm.invalid || !passwordsMatch()" class="btn">Register</button>
+                <button type="button" (click)="reset(registrationForm)" class="btn btn-ghost">Reset</button>
+                <div style="margin-left:auto; font-size:0.85rem; color:#AAB4D6;">
+                  <span *ngIf="submitted">Submitted ✓</span>
+                </div>
+              </div>
+
+            </form>
+          </div>
+
+          <!-- Advantages -->
           <div class="card glass-card animate-item zoom-in" style="animation-delay: 0.2s">
             <div class="icon-badge success"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg></div>
             <h3>✓ Advantages</h3>
@@ -41,6 +173,8 @@ import { CommonModule } from '@angular/common';
               <li *ngFor="let p of pros; let i = index" class="list-item" [style.animation-delay]="(0.3 + i * 0.1) + 's'"><span class="check">✓</span><span>{{p}}</span></li>
             </ul>
           </div>
+
+          <!-- Limitations -->
           <div class="card glass-card animate-item zoom-in" style="animation-delay: 0.3s">
             <div class="icon-badge warning"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></div>
             <h3>! Limitations</h3>
@@ -54,6 +188,7 @@ import { CommonModule } from '@angular/common';
     </section>
   `,
   styles: [`
+    :host { display:block; }
     .section { padding: 5rem 0; opacity: 0; transform: translateY(50px); transition: opacity 0.8s ease, transform 0.8s ease; position: relative; }
     .section.visible { opacity: 1; transform: translateY(0); }
     .floating-shapes { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
@@ -77,7 +212,7 @@ import { CommonModule } from '@angular/common';
     @media (min-width: 640px) { .header p { font-size: 1rem; } }
     .grid { display: grid; gap: 2rem; perspective: 1000px; }
     @media (min-width: 1024px) { .grid { grid-template-columns: repeat(2, 1fr); gap: 2.5rem; } }
-    .card { padding: 2rem; position: relative; transform-style: preserve-3d; }
+    .card { padding: 2rem; position: relative; transform-style: preserve-3d; background: rgba(10,12,20,0.6); border-radius: 1rem; border: 1px solid rgba(255,255,255,0.03); }
     .card.full { grid-column: 1 / -1; }
     .card-glow { position: absolute; inset: -2px; background: linear-gradient(135deg, rgba(139,92,246,0.3), rgba(56,189,248,0.2)); border-radius: 1.5rem; opacity: 0; transition: opacity 0.3s; filter: blur(20px); z-index: -1; }
     .card:hover .card-glow { opacity: 1; }
@@ -100,7 +235,7 @@ import { CommonModule } from '@angular/common';
     .icon-badge.success { background: linear-gradient(135deg, rgba(52,211,153,0.2), rgba(52,211,153,0.1)); color: #34D399; }
     .icon-badge.warning { background: linear-gradient(135deg, rgba(245,158,11,0.2), rgba(245,158,11,0.1)); color: #F59E0B; }
     .icon-badge svg { width: 1.5rem; height: 1.5rem; }
-    ul { list-style: none; display: flex; flex-direction: column; gap: 0.75rem; }
+    ul { list-style: none; display: flex; flex-direction: column; gap: 0.75rem; padding: 0; margin: 0; }
     .list-item { display: flex; align-items: flex-start; gap: 0.75rem; font-size: 0.875rem; color: #AAB4D6; opacity: 0; transform: translateX(-20px); padding: 0.5rem; border-radius: 0.5rem; transition: all 0.2s; }
     .list-item:hover { background: rgba(255,255,255,0.03); transform: translateX(5px); }
     .section.visible .list-item { animation: slideIn 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
@@ -109,6 +244,52 @@ import { CommonModule } from '@angular/common';
     .warn { color: #F59E0B; font-weight: 700; font-size: 1.25rem; }
     .pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
     @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.7; } }
+
+    /* Simple form input styles */
+    .input {
+      width: 100%;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.04);
+      color: #EAF0FF;
+      padding: 0.65rem 0.75rem;
+      border-radius: 0.5rem;
+      font-size: 0.95rem;
+      outline: none;
+      transition: box-shadow 0.15s ease, border-color 0.15s ease;
+    }
+    .input:focus {
+      box-shadow: 0 4px 18px rgba(56,189,248,0.08);
+      border-color: rgba(56,189,248,0.5);
+    }
+    .error small { color: #F87171; }
+
+    .btn {
+      background: linear-gradient(90deg, rgba(139,92,246,0.95), rgba(56,189,248,0.9));
+      border: none;
+      color: white;
+      padding: 0.55rem 0.9rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      font-weight: 600;
+      box-shadow: 0 6px 18px rgba(56,189,248,0.08);
+    }
+    .btn[disabled] { opacity: 0.6; cursor: not-allowed; }
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.04);
+      color: #AAB4D6;
+    }
+
+    .badge {
+      background: rgba(255,255,255,0.03);
+      padding: 0.25rem 0.5rem;
+      border-radius: 999px;
+      color: #EAF0FF;
+      font-weight: 700;
+      font-size: 0.75rem;
+    }
+
+    .section-separator { height: 2rem; }
   `]
 })
 export class TemplateSectionComponent implements OnInit {
@@ -118,6 +299,41 @@ export class TemplateSectionComponent implements OnInit {
   tiltY = 0;
   pros = ['Great for simple forms', 'Less TypeScript upfront', 'Validation lives close to markup', 'Quick to set up and prototype'];
   cons = ['Harder to unit test', 'Less control over form state', 'Can become messy with complex forms', 'Asynchronous validation is tricky'];
+
+  // model backing the template-driven form
+  model = {
+    fullName: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    phone: '',
+    bio: ''
+  };
+// add near other class properties
+submitted = false;
+
+// add methods
+passwordsMatch(): boolean {
+  return this.model.password === this.model.confirmPassword;
+}
+
+onSubmit(form: NgForm) {
+  this.submitted = false;
+  if (form.valid && this.passwordsMatch()) {
+    // handle the valid data (replace with your real submit logic)
+    console.log('Registration model', this.model);
+    this.submitted = true;
+    form.resetForm();
+  } else {
+    // mark everything touched so validation messages show
+    Object.values(form.controls).forEach(ctrl => ctrl.markAsTouched());
+  }
+}
+
+reset(form: NgForm) {
+  form.resetForm();
+  this.submitted = false;
+}
 
   constructor(private el: ElementRef) {}
 
