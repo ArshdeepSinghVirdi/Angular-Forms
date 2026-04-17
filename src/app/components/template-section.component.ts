@@ -27,7 +27,7 @@ import { FormsModule, NgForm } from '@angular/forms';
           <div class="card-shine"></div>
             <div class="card-header">
               <div class="title-row">
-                <h3><span class="icon-wrapper"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg></span>What are Reactive Forms?</h3>
+                <h3><span class="icon-wrapper"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg></span>What are Template Driven Forms?</h3>
                 <span class="badge pulse">Simple</span>
               </div>
               <p class="desc">Template-driven forms are declared in the template and rely on directives like ngModel.</p>
