@@ -18,3 +18,7 @@ npm run start
 # 3. Open your browser
 The app will automatically open at http://localhost:3000
 ```
+
+DEPLOYMENT VIDEO G-DRIVE LINK:
+
+https://drive.google.com/file/d/1GfJs5WDYZxSfhgWJzVlMypRU2PrNiXMK/view?usp=sharing
