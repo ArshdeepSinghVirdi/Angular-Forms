@@ -69,8 +69,8 @@ import { FormsModule, NgForm } from '@angular/forms';
                 />
                 <div class="error" *ngIf="fullName.invalid && (fullName.dirty || fullName.touched)" style="margin-top:0.25rem;">
                   <small *ngIf="fullName.errors?.['required']">Name is required.</small>
-<small *ngIf="fullName.errors?.['minlength']">Name must be at least 2 characters.</small>
-</div>
+                  <small *ngIf="fullName.errors?.['minlength']">Name must be at least 2 characters.</small>
+                </div>
               </div>
 
               <!-- Email -->
@@ -85,9 +85,9 @@ import { FormsModule, NgForm } from '@angular/forms';
                   class="input"
                 />
                 <div class="error" *ngIf="email.invalid && (email.dirty || email.touched)" style="margin-top:0.25rem;">
-                 <small *ngIf="email.errors?.['required']">Email is required.</small>
-<small *ngIf="email.errors?.['email']">Enter a valid email.</small>
-</div>
+                  <small *ngIf="email.errors?.['required']">Email is required.</small>
+                  <small *ngIf="email.errors?.['email']">Enter a valid email.</small>
+                </div>
               </div>
 
               <!-- Password -->
@@ -103,7 +103,9 @@ import { FormsModule, NgForm } from '@angular/forms';
                   class="input"
                 />
                 <div class="error" *ngIf="password.invalid && (password.dirty || password.touched)" style="margin-top:0.25rem;">
-              <small *ngIf="password.errors?.['required']">Password is required.</small> <small *ngIf="password.errors?.['minlength']">Password must be at least 6 characters.</small> </div>
+                  <small *ngIf="password.errors?.['required']">Password is required.</small>
+                  <small *ngIf="password.errors?.['minlength']">Password must be at least 6 characters.</small>
+                </div>
               </div>
 
               <!-- Confirm Password -->
@@ -133,7 +135,8 @@ import { FormsModule, NgForm } from '@angular/forms';
                   class="input"
                 />
                 <div class="error" *ngIf="phone.invalid && (phone.dirty || phone.touched)" style="margin-top:0.25rem;">
-<small *ngIf="phone.errors?.['pattern']">Enter a valid phone.</small>                </div>
+                  <small *ngIf="phone.errors?.['pattern']">Enter a valid phone.</small>
+                </div>
               </div>
 
               <!-- Bio (optional) -->
@@ -149,7 +152,7 @@ import { FormsModule, NgForm } from '@angular/forms';
                   style="resize:vertical;"
                 ></textarea>
                 <div class="error" *ngIf="bio.invalid && (bio.dirty || bio.touched)" style="margin-top:0.25rem;">
-<small *ngIf="bio.errors?.['maxlength']">Max 250 characters.</small>
+                  <small *ngIf="bio.errors?.['maxlength']">Max 250 characters.</small>
                 </div>
               </div>
 
@@ -244,8 +247,6 @@ import { FormsModule, NgForm } from '@angular/forms';
     .warn { color: #F59E0B; font-weight: 700; font-size: 1.25rem; }
     .pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
     @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.7; } }
-
-    /* Simple form input styles */
     .input {
       width: 100%;
       background: rgba(255,255,255,0.02);
@@ -262,7 +263,6 @@ import { FormsModule, NgForm } from '@angular/forms';
       border-color: rgba(56,189,248,0.5);
     }
     .error small { color: #F87171; }
-
     .btn {
       background: linear-gradient(90deg, rgba(139,92,246,0.95), rgba(56,189,248,0.9));
       border: none;
@@ -279,7 +279,6 @@ import { FormsModule, NgForm } from '@angular/forms';
       border: 1px solid rgba(255,255,255,0.04);
       color: #AAB4D6;
     }
-
     .badge {
       background: rgba(255,255,255,0.03);
       padding: 0.25rem 0.5rem;
@@ -288,7 +287,6 @@ import { FormsModule, NgForm } from '@angular/forms';
       font-weight: 700;
       font-size: 0.75rem;
     }
-
     .section-separator { height: 2rem; }
   `]
 })
@@ -297,10 +295,11 @@ export class TemplateSectionComponent implements OnInit {
   parallaxY = 0;
   tiltX = 0;
   tiltY = 0;
+  submitted = false;
+
   pros = ['Great for simple forms', 'Less TypeScript upfront', 'Validation lives close to markup', 'Quick to set up and prototype'];
   cons = ['Harder to unit test', 'Less control over form state', 'Can become messy with complex forms', 'Asynchronous validation is tricky'];
 
-  // model backing the template-driven form
   model = {
     fullName: '',
     email: '',
@@ -309,35 +308,16 @@ export class TemplateSectionComponent implements OnInit {
     phone: '',
     bio: ''
   };
-// add near other class properties
-submitted = false;
 
-// add methods
-passwordsMatch(): boolean {
-  return this.model.password === this.model.confirmPassword;
-}
-
-onSubmit(form: NgForm) {
-  this.submitted = false;
-  if (form.valid && this.passwordsMatch()) {
-    // handle the valid data (replace with your real submit logic)
-    console.log('Registration model', this.model);
-    this.submitted = true;
-    form.resetForm();
-  } else {
-    // mark everything touched so validation messages show
-    Object.values(form.controls).forEach(ctrl => ctrl.markAsTouched());
-  }
-}
-
-reset(form: NgForm) {
-  form.resetForm();
-  this.submitted = false;
-}
+  // ── localStorage ──────────────────────────────────────────────────────────
+  private storageKey = 'templateRegistrationForm';
 
   constructor(private el: ElementRef) {}
 
+  // ── Lifecycle ─────────────────────────────────────────────────────────────
   ngOnInit() {
+    this.loadSavedForm(); // restore safe fields before view renders
+
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
@@ -348,14 +328,70 @@ reset(form: NgForm) {
     observer.observe(this.el.nativeElement);
   }
 
+  // ── Form helpers ──────────────────────────────────────────────────────────
+  passwordsMatch(): boolean {
+    return this.model.password === this.model.confirmPassword;
+  }
+
+  onSubmit(form: NgForm): void {
+    this.submitted = false;
+    if (form.valid && this.passwordsMatch()) {
+
+      // Save only non-sensitive fields — passwords intentionally excluded
+      const safeData = {
+        fullName: this.model.fullName,
+        email:    this.model.email,
+        phone:    this.model.phone,
+        bio:      this.model.bio
+      };
+
+      try {
+        localStorage.setItem(this.storageKey, JSON.stringify(safeData));
+      } catch (error) {
+        console.error('Failed to save form data', error);
+      }
+
+      console.log('Registration model', this.model);
+      this.submitted = true;
+      form.resetForm();
+    } else {
+      Object.values(form.controls).forEach(ctrl => ctrl.markAsTouched());
+    }
+  }
+
+  reset(form: NgForm): void {
+    form.resetForm();
+    this.submitted = false;
+    // Intentionally does NOT clear localStorage — mirrors reactive form behaviour
+  }
+
+  // ── Private ───────────────────────────────────────────────────────────────
+  private loadSavedForm(): void {
+    const saved = localStorage.getItem(this.storageKey);
+
+    if (!saved) return;
+
+    try {
+      const parsed = JSON.parse(saved);
+      // Directly mutate model — [(ngModel)] two-way binding picks this up automatically
+      this.model.fullName = parsed.fullName || '';
+      this.model.email    = parsed.email    || '';
+      this.model.phone    = parsed.phone    || '';
+      this.model.bio      = parsed.bio      || '';
+    } catch (error) {
+      console.error('Failed to parse saved form data', error);
+    }
+  }
+
+  // ── Host listeners ────────────────────────────────────────────────────────
   @HostListener('window:scroll')
-  onScroll() {
+  onScroll(): void {
     const rect = this.el.nativeElement.getBoundingClientRect();
     this.parallaxY = (window.innerHeight - rect.top) * 0.1;
   }
 
   @HostListener('mousemove', ['$event'])
-  onMouseMove(e: MouseEvent) {
+  onMouseMove(e: MouseEvent): void {
     const rect = this.el.nativeElement.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
