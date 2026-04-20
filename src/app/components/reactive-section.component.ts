@@ -1,6 +1,19 @@
-import { Component, ElementRef, OnInit, HostListener } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  OnInit,
+  OnDestroy,
+  HostListener
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
+import {
+  ReactiveFormsModule,
+  FormBuilder,
+  FormGroup,
+  Validators,
+  AbstractControl,
+  ValidationErrors
+} from '@angular/forms';
 
 @Component({
   selector: 'app-reactive-section',
@@ -167,7 +180,7 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractContro
               <li *ngFor="let p of pros; let i = index"
                   class="list-item"
                   [style.animation-delay]="(0.3 + i * 0.1) + 's'">
-                <span class="check">✓</span><span>{{p}}</span>
+                <span class="check">✓</span><span>{{ p }}</span>
               </li>
             </ul>
           </div>
@@ -184,7 +197,7 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractContro
               <li *ngFor="let c of cons; let i = index"
                   class="list-item"
                   [style.animation-delay]="(0.4 + i * 0.1) + 's'">
-                <span class="warn">!</span><span>{{c}}</span>
+                <span class="warn">!</span><span>{{ c }}</span>
               </li>
             </ul>
           </div>
@@ -294,12 +307,11 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractContro
     .section-separator { height: 2rem; }
   `]
 })
-export class ReactiveSectionComponent implements OnInit {
+export class ReactiveSectionComponent implements OnInit, OnDestroy {
   isVisible = false;
   parallaxY = 0;
   tiltX = 0;
   tiltY = 0;
-
   submitted = false;
 
   pros = [
@@ -317,6 +329,8 @@ export class ReactiveSectionComponent implements OnInit {
   ];
 
   registrationForm: FormGroup;
+  private storageKey = 'registrationForm';
+  private observer?: IntersectionObserver;
 
   constructor(private el: ElementRef, private fb: FormBuilder) {
     this.registrationForm = this.fb.group(
@@ -342,14 +356,31 @@ export class ReactiveSectionComponent implements OnInit {
   passwordMatchValidator(group: AbstractControl): ValidationErrors | null {
     const password = group.get('password')?.value;
     const confirmPassword = group.get('confirmPassword')?.value;
+
+    if (!password || !confirmPassword) {
+      return null;
+    }
+
     return password === confirmPassword ? null : { passwordMismatch: true };
   }
 
-  onSubmit() {
-    this.submitted = false;
-
+  onSubmit(): void {
     if (this.registrationForm.valid) {
-      console.log('Registration form value', this.registrationForm.value);
+      const { fullName, email, phone, bio } = this.registrationForm.getRawValue();
+
+      const safeData = {
+        fullName,
+        email,
+        phone,
+        bio
+      };
+
+      try {
+        localStorage.setItem(this.storageKey, JSON.stringify(safeData));
+      } catch (error) {
+        console.error('Failed to save form data', error);
+      }
+
       this.submitted = true;
       this.registrationForm.reset();
     } else {
@@ -357,34 +388,62 @@ export class ReactiveSectionComponent implements OnInit {
     }
   }
 
-  reset() {
+  reset(): void {
     this.registrationForm.reset();
     this.submitted = false;
   }
 
-  ngOnInit() {
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          this.isVisible = true;
-        }
-      });
-    }, { threshold: 0.1 });
+  ngOnInit(): void {
+    this.loadSavedForm();
 
-    observer.observe(this.el.nativeElement);
+    this.observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            this.isVisible = true;
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    this.observer.observe(this.el.nativeElement);
+  }
+
+  ngOnDestroy(): void {
+    this.observer?.disconnect();
+  }
+
+  private loadSavedForm(): void {
+    const saved = localStorage.getItem(this.storageKey);
+
+    if (!saved) return;
+
+    try {
+      const parsed = JSON.parse(saved);
+      this.registrationForm.patchValue({
+        fullName: parsed.fullName || '',
+        email: parsed.email || '',
+        phone: parsed.phone || '',
+        bio: parsed.bio || ''
+      });
+    } catch (error) {
+      console.error('Failed to parse saved form data', error);
+    }
   }
 
   @HostListener('window:scroll')
-  onScroll() {
+  onScroll(): void {
     const rect = this.el.nativeElement.getBoundingClientRect();
     this.parallaxY = (window.innerHeight - rect.top) * 0.1;
   }
 
   @HostListener('mousemove', ['$event'])
-  onMouseMove(e: MouseEvent) {
+  onMouseMove(e: MouseEvent): void {
     const rect = this.el.nativeElement.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
+
     this.tiltX = (y / rect.height - 0.5) * 5;
     this.tiltY = (x / rect.width - 0.5) * -5;
   }
